@@ -1,6 +1,6 @@
 "use client"
 
-import DashboardContent from "./_components/DashboardContent.tsx"
+import DashboardContent from "./_components/DashboardContent"
 
 const Dashboard =()=>{
   return (
