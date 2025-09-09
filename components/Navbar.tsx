@@ -1,11 +1,9 @@
+'use client';
 
-
-"use client";
-
-import { useState } from "react";
-import Link from "next/link";
-import { Menu, X } from "lucide-react";
-import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
+import { useState } from 'react';
+import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,13 +62,25 @@ export default function Navbar() {
           <Link href="/" className="hover:text-green-400" onClick={toggleMenu}>
             Home
           </Link>
-          <Link href="/about" className="hover:text-green-400" onClick={toggleMenu}>
+          <Link
+            href="/about"
+            className="hover:text-green-400"
+            onClick={toggleMenu}
+          >
             About
           </Link>
-          <Link href="/services" className="hover:text-green-400" onClick={toggleMenu}>
+          <Link
+            href="/services"
+            className="hover:text-green-400"
+            onClick={toggleMenu}
+          >
             Services
           </Link>
-          <Link href="/contact" className="hover:text-green-400" onClick={toggleMenu}>
+          <Link
+            href="/contact"
+            className="hover:text-green-400"
+            onClick={toggleMenu}
+          >
             Contact
           </Link>
 
@@ -94,4 +104,3 @@ export default function Navbar() {
     </nav>
   );
 }
-

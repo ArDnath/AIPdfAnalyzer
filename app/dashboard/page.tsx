@@ -1,11 +1,9 @@
-"use client"
+'use client';
 
-import DashboardContent from "./_components/DashboardContent"
+import DashboardContent from './_components/DashboardContent';
 
-const Dashboard =()=>{
-  return (
-    <DashboardContent/>
-  )
-}
+const Dashboard = () => {
+  return <DashboardContent />;
+};
 
 export default Dashboard;
