@@ -7,3 +7,7 @@ export const RATE_LIMIT = {
   CACHE_MAX_SIZE: 1000,
   CACHE_TTL_MS: 60* 1000,
 }
+
+export const PDF_PROCESSING = {
+  MAX_TEXT_LENGTH: 100000,
+}

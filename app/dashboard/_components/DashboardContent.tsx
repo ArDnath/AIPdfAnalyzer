@@ -1,27 +1,22 @@
 "use client"
 
 import {useState, useCallback, useEffect} from "react";
-import {useUser} from "@clerk/nextjs";
 import {useRouter, useSearchParams} from "next/navigation";
 import { extractAction } from "../extract/actions.ts";
 import {
   CheckCircle,
   FileText,
   AlertCircle,
-  Loader,
-  Calender,
-  Info
+  Loader
 } from "lucide-react";
-
-import { extractTextFromPDF } from "@/lib/pdfUtils";
 
 const DashboardContent = ()=>{
 
   const [selectedFile, setSelectedFile] = useState<File | null> (null);
-  const [summery, setSummery] = useState('');
+  const [summary, setSummary] = useState('');
   const [ isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showPaymentSuccess, setShowPaymentSucess] = useState(false);
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
 
   const SearchParams = useSearchParams();
   const router = useRouter();
@@ -30,11 +25,11 @@ const DashboardContent = ()=>{
     const isPaymentSuccess = SearchParams?.get("payment")=== "success";
 
     if(isPaymentSuccess){
-      setShowPaymentSucess(true);
+      setShowPaymentSuccess(true);
       router.replace("/dashboard");
 
       const timer = setTimeout(() =>{
-        setShowPaymentSucess(false);
+        setShowPaymentSuccess(false);
       },5000);
 
       return () => clearTimeout(timer);
@@ -57,17 +52,37 @@ const DashboardContent = ()=>{
 
     setIsLoading(true)
     setError('')
-    setSummery('')
+    setSummary('')
 
     try{
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const result = await extractAction(formData);
+      // Extract text from PDF
+      const extractResult = await extractAction(formData);
+      console.log("Extracted text:", extractResult);
 
-      console.log(result);
-      setSummery(result.text || "No text extracted.");
-      const response = ''
+      if (!extractResult.text) {
+        setError("No text could be extracted from the PDF.");
+        return;
+      }
+
+      // Send extracted text to analyze API
+      const analyzeResponse = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: extractResult.text.substring(0,10000) }),
+      });
+
+      if (!analyzeResponse.ok) {
+        const errorData = await analyzeResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || `Analysis failed: ${analyzeResponse.statusText}`);
+      }
+
+      const analysisResult = await analyzeResponse.json();
+      setSummary(analysisResult.summary || "No analysis available.");
     }
     catch(err){
       setError(err  instanceof Error ? err.message : "Failed to analyze PDF.")
@@ -80,9 +95,9 @@ const DashboardContent = ()=>{
   return (
     <div className="space-y-10 mt-30 max-w-4xl mx-auto">
       {showPaymentSuccess && (
-        <div className="flex items-center gap-2 justify-center mx-w-xl mx-auto border my-8 bg-green-500/10 border-green-500/20  rounded-xl p-4 text-green-400">
+        <div className="flex items-center gap-2 justify-center max-w-xl mx-auto border my-8 bg-green-500/10 border-green-500/20  rounded-xl p-4 text-green-400">
           <CheckCircle className="h-5 w-5 " />
-          <p>Payment successfull! Your subscription is now active !</p>
+          <p>Payment successful! Your subscription is now active!</p>
         </div>
       )}
       <div className="p-10 rounded-2xl border border-purple-500/20 bg-black/40 shadow-[0_4px_20px_-10px] shadow-purple-500/30">
@@ -119,7 +134,14 @@ const DashboardContent = ()=>{
           onClick={handleAnalyze}
           disabled ={!selectedFile || isLoading}
           >
-          Analyse Document
+          {isLoading ? (
+            <>
+              <Loader className="w-4 h-4 mr-2 animate-spin" />
+              Analyzing Document...
+            </>
+          ) : (
+            'Analyze Document'
+          )}
         </button>
 </div>
 
@@ -135,18 +157,18 @@ const DashboardContent = ()=>{
         </div>
       )}
 
-      {summery &&(
+      {summary &&(
       
-        <div className="bg-black/20 shadow-[0_40px_20px_-10px] shadow-purple-200/30 roudned-2xl p-8 border border-[#2A2A35]">
+        <div className="bg-black/20 shadow-[0_40px_20px_-10px] shadow-purple-200/30 rounded-2xl p-8 border border-[#2A2A35]">
           <div className="flex items-center mb-6">
-            <div className="mr-3 p-2 roudned-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+            <div className="mr-3 p-2 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
               <FileText className="h-6 w-6 text-purple-400"/>
             </div>
           </div>
 
-          <div className="max-w-none px-6 py-5 roudned-xl bg-[#0f0f13] border border-[#2A2A35]">
+          <div className="max-w-none px-6 py-5 rounded-xl bg-[#0f0f13] border border-[#2A2A35]">
             <pre className="whitespace-pre-wrap text-purple-100 text-sm leading-relaxed">
-              {summery}
+              {summary}
             </pre>
 
           </div>

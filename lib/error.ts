@@ -12,16 +12,16 @@ export class ApiError extends Error {
 }
 
 export const handleApiError =(error: unknown) : NextResponse =>{
-  console.Error("API Error:", error)
+  console.error("API Error:", error)
 
   if(error instanceof ApiError){
       return NextResponse.json(
-        { error: error.message}
-        { status: 500}
+        { error: error.message},
+        { status: error.statusCode}
       )
   }
   return NextResponse.json(
-    {error: "unknown error occured"},
+    {error: "unknown error occurred"},
     { status: 500}
   )
 }
