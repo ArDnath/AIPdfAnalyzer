@@ -3,7 +3,7 @@
 import {useState, useCallback, useEffect} from "react";
 import {useUser} from "@clerk/nextjs";
 import {useRouter, useSearchParams} from "next/navigation";
-import { extractAction } from "../../payment/extract/actions.ts";
+import { extractAction } from "../extract/actions.ts";
 import {
   CheckCircle,
   FileText,
